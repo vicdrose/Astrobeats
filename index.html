@@ -123,10 +123,10 @@ fetch('data.json')
   .then(jsonData => {
     data = jsonData;
     cards = [
-      document.querySelector('#card1'),
-      document.querySelector('#card2'),
+      document.querySelector('#card4'),
       document.querySelector('#card3'),
-      document.querySelector('#card4')
+      document.querySelector('#card2'),
+      document.querySelector('#card1')
     ];
     shuffleCards();
     setupCardClicks();
