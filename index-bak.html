@@ -94,10 +94,10 @@
 <h1>AstroBeats Cards</h1>
 
 <div id="cards-container">
-  <div id="card4" class="card"><div class="card-inner"><img class="card-front" src="" alt=""><img class="card-back" src="" alt=""></div></div>
-  <div id="card3" class="card"><div class="card-inner"><img class="card-front" src="" alt=""><img class="card-back" src="" alt=""></div></div>
-  <div id="card2" class="card"><div class="card-inner"><img class="card-front" src="" alt=""><img class="card-back" src="" alt=""></div></div>
-  <div id="card1" class="card"><div class="card-inner"><img class="card-front" src="" alt=""><img class="card-back" src="" alt=""></div></div>
+  <div id="card1" class="card"><div class="card-inner"><img class="card-front" src="" alt=""><img class="card-back" src="astrology/back.jpg" alt=""></div></div>
+  <div id="card2" class="card"><div class="card-inner"><img class="card-front" src="" alt=""><img class="card-back" src="astrology/back.jpg" alt=""></div></div>
+  <div id="card3" class="card"><div class="card-inner"><img class="card-front" src="" alt=""><img class="card-back" src="astrology/back.jpg" alt=""></div></div>
+  <div id="card4" class="card"><div class="card-inner"><img class="card-front" src="" alt=""><img class="card-back" src="astrology/back.jpg" alt=""></div></div>
 </div>
 
 <button id="shuffle-btn">Shuffle Cards</button>
@@ -142,30 +142,15 @@ function shuffleCards() {
   const houseCard = getRandomItem(data.astrology.houses);
   const crystalCard = getRandomItem(data.crystals);
 
-  // --- Astrology Cards (1–3) ---
-  // Default visible side = back.jpg
-  // Hidden side = real card image
-
-  document.querySelector('#card1 .card-front').src = 'astrology/back.jpg';
-  document.querySelector('#card1 .card-back').src = bodyCard;
-
-  document.querySelector('#card2 .card-front').src = 'astrology/back.jpg';
-  document.querySelector('#card2 .card-back').src = signCard;
-
-  document.querySelector('#card3 .card-front').src = 'astrology/back.jpg';
-  document.querySelector('#card3 .card-back').src = houseCard;
-
-  // --- Crystal Card (4) ---
-  // Default visible = crystal front (not -text)
-  // Hidden side = crystal text image
-
+  // Assign images to card fronts
+  document.querySelector('#card1 .card-front').src = bodyCard;
+  document.querySelector('#card2 .card-front').src = signCard;
+  document.querySelector('#card3 .card-front').src = houseCard;
   document.querySelector('#card4 .card-front').src = crystalCard.front;
-  document.querySelector('#card4 .card-back').src = crystalCard.text;
 
-  // Reset all cards to default state (not flipped)
+  // Reset flip state
   cards.forEach(card => card.classList.remove('flip'));
 }
-
 
 // Card flip click
 function setupCardClicks() {
