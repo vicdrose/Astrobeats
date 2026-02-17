@@ -3,185 +3,235 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Astro Beats App</title>
+<title>AstroBeats Demo</title>
 <style>
   body {
-    font-family: Arial, sans-serif;
+    font-family: sans-serif;
+    background: #111;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin: 0;
     padding: 20px;
-    background: #111;
-    color: #fff;
   }
-  #cardsContainer {
+
+  #cards-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
     justify-content: center;
-    flex-direction: row-reverse; /* initial row order fix */
+    gap: 15px;
+    margin-bottom: 20px;
   }
+
   .card {
-    width: 200px;
-    height: 300px;
+    width: 150px;
+    height: 220px;
     perspective: 1000px;
-    border-radius: 15px;
-    overflow: hidden;
-    position: relative;
+    cursor: pointer;
   }
-  .card img {
+
+  .card-inner {
+    position: relative;
     width: 100%;
     height: 100%;
-    border-radius: 15px;
     transition: transform 0.6s;
-    display: block;
+    transform-style: preserve-3d;
+    border-radius: 12px;
   }
-  .card.flipped img {
+
+  .card.flipped .card-inner {
     transform: rotateY(180deg);
   }
 
-  #journal {
-    margin-top: 40px;
-  }
-  #journal textarea {
+  .card-front, .card-back {
+    position: absolute;
     width: 100%;
-    height: 100px;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 16px;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    object-fit: cover;
   }
-  #journal button {
-    margin-top: 10px;
+
+  .card-back {
+    background: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #eee;
+  }
+
+  .card-front {
+    transform: rotateY(180deg);
+  }
+
+  #shuffle-btn {
     padding: 10px 20px;
     font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    background-color: #4caf50;
+    color: white;
     cursor: pointer;
+    margin-bottom: 20px;
   }
-  #journalEntries {
-    margin-top: 20px;
+
+  #journal {
+    width: 90%;
+    max-width: 500px;
   }
-  .entry {
+
+  #journal textarea {
+    width: 100%;
+    height: 80px;
     margin-bottom: 10px;
-    padding: 10px;
+  }
+
+  #journal button {
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+
+  #journal-entries {
+    margin-top: 10px;
+  }
+
+  .entry {
     background: #222;
-    border-radius: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 5px;
   }
 </style>
 </head>
 <body>
 
-<h1>Astro Beats App</h1>
-<div id="cardsContainer">
-  <div id="card1" class="card"></div>
-  <div id="card2" class="card"></div>
-  <div id="card3" class="card"></div>
-  <div id="card4" class="card"></div>
+<h1>AstroBeats Demo</h1>
+
+<button id="shuffle-btn">Shuffle Cards</button>
+
+<div id="cards-container">
+  <div class="card" id="card1"><div class="card-inner"><img class="card-back"><img class="card-front"></div></div>
+  <div class="card" id="card2"><div class="card-inner"><img class="card-back"><img class="card-front"></div></div>
+  <div class="card" id="card3"><div class="card-inner"><img class="card-back"><img class="card-front"></div></div>
+  <div class="card" id="card4"><div class="card-inner"><img class="card-back"><img class="card-front"></div></div>
 </div>
 
-<button id="shuffleBtn">Shuffle Cards</button>
-
 <div id="journal">
-  <textarea id="journalInput" placeholder="Write your journal entry..."></textarea>
-  <button id="saveJournalBtn">Save Entry</button>
-  <div id="journalEntries"></div>
+  <textarea id="journal-text" placeholder="Write a note..."></textarea><br>
+  <button id="add-entry">Add Entry</button>
+  <button id="clear-entries">Clear All</button>
+  <div id="journal-entries"></div>
 </div>
 
 <script>
-let astroData;
+let astroData = null;
 
-// Load JSON data
+// Load JSON
 fetch("data.json")
   .then(res => res.json())
   .then(data => {
     astroData = data;
-    populateCards();
-    loadJournal();
+    shuffleCards();
   })
   .catch(err => console.error("Failed to load JSON:", err));
 
-function populateCards() {
-  if (!astroData) return;
-
-  // pick random items
-  const crystalKeys = Object.keys(astroData.crystals.front);
-  const crystalRandom = crystalKeys[Math.floor(Math.random() * crystalKeys.length)];
-  const crystalFront = astroData.crystals.front[crystalRandom];
-  const crystalBack = astroData.crystals.text[crystalRandom];
-
-  const bodyKeys = Object.keys(astroData.astrology.body);
-  const bodyRandom = bodyKeys[Math.floor(Math.random() * bodyKeys.length)];
-  const bodyImg = astroData.astrology.body[bodyRandom];
-
-  const houseKeys = Object.keys(astroData.astrology.houses);
-  const houseRandom = houseKeys[Math.floor(Math.random() * houseKeys.length)];
-  const houseImg = astroData.astrology.houses[houseRandom];
-
-  const signKeys = Object.keys(astroData.astrology.sign);
-  const signRandom = signKeys[Math.floor(Math.random() * signKeys.length)];
-  const signImg = astroData.astrology.sign[signRandom];
-
-  const cardArr = [
-    { el: document.querySelector("#card1"), front: crystalFront, back: crystalBack },
-    { el: document.querySelector("#card2"), front: bodyImg, back: astroData.astrology.back },
-    { el: document.querySelector("#card3"), front: houseImg, back: astroData.astrology.back },
-    { el: document.querySelector("#card4"), front: signImg, back: astroData.astrology.back },
-  ];
-
-  cardArr.forEach(card => {
-    card.el.innerHTML = `<img src="${card.back}" data-front="${card.front}" data-back="${card.back}">`;
-    card.el.classList.remove("flipped");
+// Card flipping
+document.querySelectorAll(".card").forEach(card => {
+  card.addEventListener("click", () => {
+    card.classList.toggle("flipped");
   });
-
-  setupFlipEvents();
-}
-
-function setupFlipEvents() {
-  const cards = document.querySelectorAll(".card img");
-  cards.forEach(img => {
-    img.parentElement.addEventListener("click", () => {
-      const parent = img.parentElement;
-      parent.classList.toggle("flipped");
-      img.src = parent.classList.contains("flipped") ? img.dataset.front : img.dataset.back;
-    });
-  });
-}
-
-// Shuffle button resets cards
-document.getElementById("shuffleBtn").addEventListener("click", populateCards);
-
-// --- Journal CRUD ---
-function loadJournal() {
-  const entries = JSON.parse(localStorage.getItem("journalEntries") || "[]");
-  renderJournal(entries);
-}
-
-function renderJournal(entries) {
-  const container = document.getElementById("journalEntries");
-  container.innerHTML = "";
-  entries.forEach((entry, idx) => {
-    const div = document.createElement("div");
-    div.className = "entry";
-    div.innerHTML = `
-      <p>${entry}</p>
-      <button onclick="deleteEntry(${idx})">Delete</button>
-    `;
-    container.appendChild(div);
-  });
-}
-
-document.getElementById("saveJournalBtn").addEventListener("click", () => {
-  const input = document.getElementById("journalInput");
-  if (!input.value) return;
-  const entries = JSON.parse(localStorage.getItem("journalEntries") || "[]");
-  entries.push(input.value);
-  localStorage.setItem("journalEntries", JSON.stringify(entries));
-  input.value = "";
-  renderJournal(entries);
 });
 
-function deleteEntry(idx) {
-  const entries = JSON.parse(localStorage.getItem("journalEntries") || "[]");
-  entries.splice(idx, 1);
-  localStorage.setItem("journalEntries", JSON.stringify(entries));
-  renderJournal(entries);
+// Shuffle logic
+function shuffleCards() {
+  if (!astroData) return;
+
+  const cardEls = [
+    document.querySelector("#card1"),
+    document.querySelector("#card2"),
+    document.querySelector("#card3"),
+    document.querySelector("#card4")
+  ];
+
+  // Reset all cards to unflipped
+  cardEls.forEach(card => card.classList.remove("flipped"));
+
+  // ASTROLOGY CARDS
+  const astrologyBack = astroData.astrology?.back || "astrology/back.jpg";
+  const bodyKeys = Object.keys(astroData.astrology?.body || {});
+  const housesKeys = Object.keys(astroData.astrology?.houses || {});
+  const signKeys = Object.keys(astroData.astrology?.sign || {});
+
+  // Pick random items
+  const bodyRandom = bodyKeys.length ? bodyKeys[Math.floor(Math.random() * bodyKeys.length)] : null;
+  const houseRandom = housesKeys.length ? housesKeys[Math.floor(Math.random() * housesKeys.length)] : null;
+  const signRandom = signKeys.length ? signKeys[Math.floor(Math.random() * signKeys.length)] : null;
+
+  // CARD 1 - Astrology body
+  setCard(cardEls[0], astrologyBack, bodyRandom ? astroData.astrology.body[bodyRandom] : astrologyBack);
+
+  // CARD 2 - Astrology house
+  setCard(cardEls[1], astrologyBack, houseRandom ? astroData.astrology.houses[houseRandom] : astrologyBack);
+
+  // CARD 3 - Astrology sign
+  setCard(cardEls[2], astrologyBack, signRandom ? astroData.astrology.sign[signRandom] : astrologyBack);
+
+  // CARD 4 - Crystal
+  const crystalKeys = Object.keys(astroData.crystals?.front || {});
+  const crystalRandom = crystalKeys.length ? crystalKeys[Math.floor(Math.random() * crystalKeys.length)] : null;
+  const crystalFront = crystalRandom ? astroData.crystals.front[crystalRandom] : "crystals/front/default.jpg";
+  const crystalText = crystalRandom ? astroData.crystals.text[crystalRandom] : "crystals/text/default-text.jpg";
+  setCard(cardEls[3], crystalFront, crystalText);
 }
+
+// Helper to assign images to card
+function setCard(cardEl, backSrc, frontSrc) {
+  const backImg = cardEl.querySelector(".card-back");
+  const frontImg = cardEl.querySelector(".card-front");
+  backImg.src = backSrc;
+  frontImg.src = frontSrc;
+}
+
+// SHUFFLE BUTTON
+document.querySelector("#shuffle-btn").addEventListener("click", shuffleCards);
+
+// --- JOURNAL ---
+function saveEntries(entries) {
+  localStorage.setItem("journalEntries", JSON.stringify(entries));
+}
+
+function loadEntries() {
+  const entries = JSON.parse(localStorage.getItem("journalEntries") || "[]");
+  const container = document.querySelector("#journal-entries");
+  container.innerHTML = "";
+  entries.forEach((text, i) => {
+    const div = document.createElement("div");
+    div.className = "entry";
+    div.innerText = text;
+    container.appendChild(div);
+  });
+  return entries;
+}
+
+const journalEntries = loadEntries();
+
+document.querySelector("#add-entry").addEventListener("click", () => {
+  const textEl = document.querySelector("#journal-text");
+  if (!textEl.value.trim()) return;
+  journalEntries.push(textEl.value.trim());
+  saveEntries(journalEntries);
+  loadEntries();
+  textEl.value = "";
+});
+
+document.querySelector("#clear-entries").addEventListener("click", () => {
+  journalEntries.length = 0;
+  saveEntries(journalEntries);
+  loadEntries();
+});
 </script>
+
 </body>
 </html>
