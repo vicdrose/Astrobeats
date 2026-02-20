@@ -274,9 +274,16 @@ function closeAll(){
 }
 
 hamburger.addEventListener("click", () => {
-  sidebar.classList.toggle("open");
+  const isOpen = sidebar.classList.toggle("open");
   appWrapper.classList.toggle("shifted");
-  uiOverlay.style.display = "block";
+
+  if(isOpen){
+    uiOverlay.style.display = "block";
+  } else {
+    if(journalModal.style.display !== "block") {
+      uiOverlay.style.display = "none";
+    }
+  }
 });
 
 uiOverlay.addEventListener("click", closeAll);
@@ -440,6 +447,5 @@ window.addEventListener('resize',()=>{
   gl.uniform2f(u_resolution,canvas.width,canvas.height);
 });
 </script>
-
 </body>
 </html>
